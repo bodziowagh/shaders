@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset=utf-8>
+        <title>Messing around with Three.js</title>
+        <style>
+            body { margin: 0; }
+            canvas { width: 100%; height: 100% }
+        </style>
+    </head>
+    <body>
+        <script id="vertexShader" type="x-shader/x-vertex">
+            varying vec3 vNormal;
+            varying vec3 vSpectator;
+
+            uniform float time;
+            uniform vec3 spectator;
+
+            void main() {
+                vNormal = normal;
+                vSpectator = normalize(spectator);
+
+                gl_Position = projectionMatrix *
+                              modelViewMatrix *
+                              vec4(position, 1.0);
+            }
+		</script>
+
+        <script id="fragmentShader" type="x-shader/x-fragment">
+            #define M_PI 3.1415926535897932384626433832795
+
+            varying vec3 vNormal;
+            varying vec3 vSpectator;
+
+            float getDiffuse(vec3 v1, vec3 v2) {
+                vec3 nv1 = normalize(v1);
+                vec3 nv2 = normalize(v2);
+
+                return max(0.0, dot(v1, v2));
+            }
+
+            float getSpecular(vec3 v1, vec3 v2, float k) {
+                vec3 nv1 = normalize(v1);
+                vec3 nv2 = normalize(v2);
+
+                vec3 r = nv1 * nv2;
+                float p = r[0] + r[1] + r[2];
+
+                float spec = cos(min(M_PI / 2.0, acos(p) * k));
+
+                return max(0.0, spec);
+            }
+
+            void main()	{
+                vec3 mockLight = vec3(1.5, 0.5, 3.0);       // TODO: replace with the real light
+
+                vec3 light = normalize(mockLight);
+
+                float diffuse = getDiffuse(vNormal, light);
+
+
+                vec3 reflected = -1.0 * reflect(light, vNormal);
+                float specular = getSpecular(reflected, vSpectator, 7.0);
+
+                float intensity =
+                    0.5 * diffuse +
+                    1.0 * specular;
+
+                gl_FragColor = vec4(
+                    intensity,
+                    intensity,
+                    intensity,
+                    1.0
+                );
+            }
+        </script>
+
+        <script src="./dependencies/three-js/three.min.js"></script>
+        <script src="./dependencies/three-js/controls/OrbitControls.js"></script>
+        <script src="./assets/map.js"></script>
+        <script src="./src/index.js"></script>
+
+		<div id="container"></div>
+    </body>
+</html>
