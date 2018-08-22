@@ -47,7 +47,7 @@ function init() {
 		document.body.appendChild(renderer.domElement);
 	}
 
-    function initBox() {
+    function initObjects() {
         const sphereGeometry = new THREE.SphereGeometry(3, 15, 15);
         const octahedronGeometry = new THREE.OctahedronGeometry(3);
         const torusGeometry = new THREE.TorusGeometry(2, 1, 16, 100 );
@@ -85,8 +85,8 @@ function init() {
         octahedron = new THREE.Mesh(octahedronGeometry, shaderMaterial);
         torus = new THREE.Mesh(torusGeometry, shaderMaterial);
 
-        octahedron.position.set(0, 8, 0);
-        torus.position.set(0, -8, 0);
+        octahedron.position.set(-8, 0, 0);
+        torus.position.set(8, 0, 0);
 
         scene.add(box);
         scene.add(octahedron);
@@ -100,7 +100,7 @@ function init() {
 
 	initWebGL();
     initLights();
-    initBox();
+    initObjects();
 }
 
 function render() {
