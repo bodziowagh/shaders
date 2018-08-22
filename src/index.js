@@ -14,6 +14,7 @@ const CONFIG = {
         antialias: true
     },
     mainLight: {
+        animate: true,
         orbitRadius: 10,
         rotationSlowdownRatio: 3
     }
@@ -95,7 +96,11 @@ function init() {
 
     function initLights() {
 	    mainLight = new THREE.Light(0xffffff, 1.0);
-	    mainLight.position.set(0.0, 0.0, 0.0);
+	    mainLight.position.set(
+            CONFIG.mainLight.orbitRadius * Math.cos(0),
+            CONFIG.mainLight.orbitRadius * Math.sin(0),
+            0.0
+        );
     }
 
 	initWebGL();
@@ -112,12 +117,14 @@ function animate() {
 
     uniforms.time.value += 0.1;
 
-    mainLight.position.x = CONFIG.mainLight.orbitRadius * Math.cos(
-        uniforms.time.value / CONFIG.mainLight.rotationSlowdownRatio
-    );
-    mainLight.position.z = CONFIG.mainLight.orbitRadius * Math.sin(
-        uniforms.time.value / CONFIG.mainLight.rotationSlowdownRatio
-    );
+    if (CONFIG.mainLight.animate) {
+        mainLight.position.x = CONFIG.mainLight.orbitRadius * Math.cos(
+            uniforms.time.value / CONFIG.mainLight.rotationSlowdownRatio
+        );
+        mainLight.position.z = CONFIG.mainLight.orbitRadius * Math.sin(
+            uniforms.time.value / CONFIG.mainLight.rotationSlowdownRatio
+        );
+    }
 
 	requestAnimationFrame(animate);
 	render();

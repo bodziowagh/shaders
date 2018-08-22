@@ -22,15 +22,15 @@
 
             void main() {
                 vNormal = normal;
-                vSpectator = normalize(spectator);
+                vSpectator = spectator;
 
-                vec3 newPosition =
+                vPosition =
                     position +
                     wiggliness * vec3(cos(position[1] * density + time), 0.0, 0.0);
 
                 gl_Position = projectionMatrix *
                               modelViewMatrix *
-                              vec4(newPosition, 1.0);
+                              vec4(vPosition, 1.0);
             }
 		</script>
 
@@ -38,6 +38,8 @@
             #define M_PI                3.1415926535897932384626433832795
             #define DIFFUSE_INTENSITY   0.5
             #define SPECULAR_INTENSITY  1.0
+            #define MIN_DISTANCE        15.0
+            #define MAX_DISTANCE        50.0
 
             uniform float time;
             uniform bool applyDiffuse;
@@ -46,6 +48,7 @@
 
             varying vec3 vNormal;
             varying vec3 vSpectator;
+            varying vec3 vPosition;
 
             float getDiffuse(vec3 v1, vec3 v2) {
                 vec3 nv1 = normalize(v1);
@@ -73,9 +76,18 @@
                 vec3 reflected = -1.0 * reflect(light, vNormal);
                 float specular = applySpecular ? getSpecular(reflected, vSpectator, 5.0) : 0.0;
 
-                float intensity =
+                float distanceFromSpectator = distance(vPosition, vSpectator);
+
+                float fadeRatio = distanceFromSpectator < MIN_DISTANCE ?
+                    1.0 :
+                    distanceFromSpectator > MAX_DISTANCE ?
+                        0.0 :
+                        (MAX_DISTANCE - distanceFromSpectator) / (MAX_DISTANCE - MIN_DISTANCE);
+
+                float intensity = (
                     DIFFUSE_INTENSITY * diffuse +
-                    SPECULAR_INTENSITY * specular;
+                    SPECULAR_INTENSITY * specular
+                ) * fadeRatio;
 
                 gl_FragColor = vec4(
                     intensity,
