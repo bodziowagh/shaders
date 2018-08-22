@@ -43,44 +43,27 @@ function init() {
 		document.body.appendChild(renderer.domElement);
 	}
 
-	function initIndicator() {
-		const geometryY = new THREE.Geometry();
-        const materialY = new THREE.LineBasicMaterial( { color: 0xff0000 } );
-        const verticesY = [
-			new THREE.Vector3(0, 1, 0),
-			new THREE.Vector3(0, 0, 0)
-		];
-        geometryY.vertices = verticesY;
-
-        const geometryX = new THREE.Geometry();
-        const materialX = new THREE.LineBasicMaterial( { color: 0x00ff00 } );
-        const verticesX = [
-            new THREE.Vector3(1, 0, 0),
-            new THREE.Vector3(0, 0, 0)
-        ];
-        geometryX.vertices = verticesX;
-
-        const geometryZ = new THREE.Geometry();
-        const materialZ = new THREE.LineBasicMaterial( { color: 0x0000ff } );
-        const verticesZ = [
-            new THREE.Vector3(0, 0, 1),
-            new THREE.Vector3(0, 0, 0)
-        ];
-        geometryZ.vertices = verticesZ;
-
-        scene.add(new THREE.Line(geometryY, materialY));
-        scene.add(new THREE.Line(geometryX, materialX));
-        scene.add(new THREE.Line(geometryZ, materialZ));
-	}
-
     function initBox() {
-        const sphereGeometry = new THREE.SphereGeometry(3, 10, 10);
+        const sphereGeometry = new THREE.SphereGeometry(3, 15, 15);
         const octahedronGeometry = new THREE.OctahedronGeometry(3);
         const torusGeometry = new THREE.TorusGeometry(2, 1, 16, 100 );
 
         uniforms = {
             spectator: {
+                type: "v3",
                 value: camera.position
+            },
+            time: {
+                type: "f",
+                value: 0.0
+            },
+            applyDiffuse: {
+                type: "b",
+                value: true
+            },
+            applySpecular: {
+                type: "b",
+                value: true
             }
         };
 
@@ -102,24 +85,7 @@ function init() {
         scene.add(torus);
     }
 
-	function initLight() {
-		const dirLight = new THREE.PointLight( 0xffffff, 1, 50 );
-		const ambLight = new THREE.AmbientLight( 0xffffff, 0.05 );
-
-        dirLight.position.set(5, 10, 5);
-
-        dirLight.castShadow = true;
-        dirLight.shadow.camera.near = 1;
-        dirLight.shadow.camera.far = 25;
-
-		scene.add(dirLight);
-		scene.add(ambLight);
-	}
-
 	initWebGL();
-	initLight();
-
-	initIndicator();
     initBox();
 }
 
@@ -129,6 +95,8 @@ function render() {
 
 function animate() {
     controls.update();
+
+    uniforms.time.value += 0.1;
 
 	requestAnimationFrame(animate);
 	render();
