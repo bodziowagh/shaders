@@ -12,10 +12,14 @@ const CONFIG = {
     },
     rendererProps: {
         antialias: true
+    },
+    mainLight: {
+        orbitRadius: 10,
+        rotationSlowdownRatio: 3
     }
 };
 
-let renderer, camera, scene, controls;
+let renderer, camera, scene, controls, mainLight;
 let box, octahedron, torus, uniforms;
 
 function init() {
@@ -27,7 +31,7 @@ function init() {
 											 SCENE.FAR);
 		scene = new THREE.Scene();
 
-		camera.position.set(16, 10, 16);
+		camera.position.set(-9, 8, 16);
 		camera.lookAt(new THREE.Vector3(0, 0, 0));
 
         controls = new THREE.OrbitControls(camera);
@@ -52,6 +56,10 @@ function init() {
             spectator: {
                 type: "v3",
                 value: camera.position
+            },
+            mainLight: {
+                type: "v3",
+                value: mainLight.position
             },
             time: {
                 type: "f",
@@ -85,7 +93,13 @@ function init() {
         scene.add(torus);
     }
 
+    function initLights() {
+	    mainLight = new THREE.Light(0xffffff, 1.0);
+	    mainLight.position.set(0.0, 0.0, 0.0);
+    }
+
 	initWebGL();
+    initLights();
     initBox();
 }
 
@@ -97,6 +111,13 @@ function animate() {
     controls.update();
 
     uniforms.time.value += 0.1;
+
+    mainLight.position.x = CONFIG.mainLight.orbitRadius * Math.cos(
+        uniforms.time.value / CONFIG.mainLight.rotationSlowdownRatio
+    );
+    mainLight.position.z = CONFIG.mainLight.orbitRadius * Math.sin(
+        uniforms.time.value / CONFIG.mainLight.rotationSlowdownRatio
+    );
 
 	requestAnimationFrame(animate);
 	render();

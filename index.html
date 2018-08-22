@@ -10,7 +10,7 @@
     </head>
     <body>
         <script id="vertexShader" type="x-shader/x-vertex">
-            #define wiggliness  0.1
+            #define wiggliness  0.2
             #define density     10.0
 
             varying vec3 vNormal;
@@ -35,11 +35,14 @@
 		</script>
 
         <script id="fragmentShader" type="x-shader/x-fragment">
-            #define M_PI 3.1415926535897932384626433832795
+            #define M_PI                3.1415926535897932384626433832795
+            #define DIFFUSE_INTENSITY   0.5
+            #define SPECULAR_INTENSITY  1.0
 
             uniform float time;
             uniform bool applyDiffuse;
             uniform bool applySpecular;
+            uniform vec3 mainLight;
 
             varying vec3 vNormal;
             varying vec3 vSpectator;
@@ -64,17 +67,15 @@
             }
 
             void main()	{
-                vec3 mockLight = vec3(1.5, 0.5, 3.0);       // TODO: replace with the real light
-
-                vec3 light = normalize(mockLight);
+                vec3 light = normalize(mainLight);
                 float diffuse = applyDiffuse ? getDiffuse(vNormal, light) : 0.0;
 
                 vec3 reflected = -1.0 * reflect(light, vNormal);
-                float specular = applySpecular ? getSpecular(reflected, vSpectator, 7.0) : 0.0;
+                float specular = applySpecular ? getSpecular(reflected, vSpectator, 5.0) : 0.0;
 
                 float intensity =
-                    0.5 * diffuse +
-                    1.0 * specular;
+                    DIFFUSE_INTENSITY * diffuse +
+                    SPECULAR_INTENSITY * specular;
 
                 gl_FragColor = vec4(
                     intensity,
